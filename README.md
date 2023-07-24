@@ -5,6 +5,7 @@
 ---
 
 ## SETUP
+- Download and load public templates
 - Git clone from branch: Dev
 - Install NodeJS 
 - `npm install`
@@ -14,5 +15,3 @@
 
 ## TEST
 
-Currently Available
-: Department - CR ~U~ D
