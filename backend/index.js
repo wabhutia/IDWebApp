@@ -2,8 +2,10 @@ require('dotenv').config()
 const express = require('express')
 const path = require('path')
 const deptRoutes = require('./routes/departmentRoutes')
+const userRoutes = require('./routes/userRoutes')
 
 const app = express()
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
@@ -13,8 +15,8 @@ app.use(express.static('../public/main'));
 
 
 // Routes
+app.use('/user', userRoutes)
 app.use('/departments', deptRoutes);
-
 
 // Error handling middleware
 app.use((err, req, res, next) => {
