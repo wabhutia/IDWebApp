@@ -2,6 +2,7 @@ const pool = require('../models/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Test only - .env
 const SECRET_KEY = "TESTING-THE-JWTs"
 
 
@@ -11,9 +12,12 @@ const signUp = async (req, res) => {
     try {
 
         // Existing User
-        const [existingUser] = await pool.query("SELECT * FROM user WHERE phone_number = ?", phone_number);
+        const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username);
         if (existingUser.length != 0) {
-            return res.status(400).json({msg: "User already exists!"})
+            return res.status(403).json({
+                    msg: "Login Not Successful",
+                    error: "Resource already exists"    
+                })
         }
 
         // Hashed Password
@@ -29,9 +33,8 @@ const signUp = async (req, res) => {
 
         // Token Generation
         const newUserId = result.insertId;
-        const token = jwt.sign({phoneNumber: phone_number, id: newUserId}, SECRET_KEY);
+        const token = jwt.sign({username: username, id: newUserId}, SECRET_KEY);
         res.status(200).json({ user: result, token: token})
-
 
     } catch (error) {
         console.error('Error inserting user data: ', error);
@@ -40,11 +43,34 @@ const signUp = async (req, res) => {
 }
 
 const signIn = async (req, res) => {
+ 
+    const { username, password } = req.body;
     try {
-        // const { username, phone_number, password } = req.body;
         
+        if (username && password) {
+            
+            const [result] = await pool.query("SELECT * FROM user WHERE username = ?", username)
+            
+            const matchPassword = await bcrypt.compare(password, result[0].password);
+
+            if (!matchPassword) {
+                return res.status(401).json({
+                    msg: "Invalid Credentials",
+                    error: "Incorrect Password"
+                })
+            }
+            
+            console.log(result[0].user_id);
+            const token = jwt.sign({ username: result[0].username, id: result[0].user_id}, SECRET_KEY)
+            res.status(201).json({user: result[0], token: token});
+
+        } else {
+            res.json({msg: "Enter username and password!"});
+        }
+
     } catch (err) {
-        
+        console.log(err);
+        res.status(500).send('Incorrect username or password')
     }
 }
 
