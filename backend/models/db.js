@@ -11,36 +11,3 @@ const pool = mysql.createPool({
 });
 
 module.exports = pool;
-
-// server.js code
-// pool.getConnection((err, connection) => {
-
-//     if (err) {
-//         console.log('Error Connecting to the DB: ', err)
-//         return;
-//     }
-
-//     // Release connection to the Pool
-//     connection.release()
-
-//     // Start the server
-//     const server = app.listen(process.env.PORT, () => {
-//         console.log("Server is listening on port:", process.env.PORT);
-//     })
-
-//     // Handler server shutdown
-//     process.on('SIGINT', () => {
-//         server.close((err) => {
-//             if (err) {
-//                 console.error("Error closing the server:", err)
-//             }
-//             // Release the DB Connection
-//             pool.end((err) => {
-//                 if (err) {
-//                     console.error('Error closing the database connection:', err);
-//                 }
-//                 process.exit();
-//             });
-//         });
-//     });
-// });

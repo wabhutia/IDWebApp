@@ -5,7 +5,8 @@ const express = require('express');
 const {
     getAllDepartments,
     addNewDepartment,
-    removeDepartment
+    removeDepartment,
+    updateDepartment
 } = require('../controllers/departmentController')
 
 const router = express.Router();
@@ -15,6 +16,6 @@ router.route("/")
     .get(getAllDepartments)
     .post(addNewDepartment)
     .delete(removeDepartment)
-    // .patch(updateDepartment)    
+    .patch(updateDepartment)    
 
 module.exports = router

@@ -4,7 +4,7 @@ const pool = require('../models/db')
 const getAllDepartments = async (req, res) => {
     try {
         const [depts] = await pool.query("SELECT * FROM departments");
-        res.json(depts);
+        res.status(200).json(depts);
     }
     catch (error) {
         console.error("Error executing QUERY: ", error);
@@ -63,10 +63,33 @@ const removeDepartment = async (req, res) => {
     }
 }
 
+// Update department name only
+const updateDepartment = async (req, res) => {
+
+    const {department_id, department_name} = req.body;
+
+    try {
+
+        const result = await pool.query(`
+        UPDATE departments
+        SET department_name = ?
+        WHERE department_id = ?`, [department_name, department_id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ msg: 'Department ID not found.'})
+        }
+
+        res.status(200).json({ msg: "Succesfully updated the department name."})
+
+    } catch (error) {
+        console.error("Error updating : ", error);
+        res.status(500).send("Error updating the department.")
+    }
+}
 
 module.exports = {
     getAllDepartments,
     addNewDepartment,
-    removeDepartment
-    // updateDepartment
+    removeDepartment,
+    updateDepartment
 }
