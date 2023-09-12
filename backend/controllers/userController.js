@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 // Test only - .env
 const SECRET_KEY = "TESTING-THE-JWTs"
 
-
 const signUp = async (req, res) => {
 
     const { username, phone_number,  password } = req.body;
@@ -15,7 +14,7 @@ const signUp = async (req, res) => {
         const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username);
         if (existingUser.length != 0) {
             return res.status(403).json({
-                    msg: "Login Not Successful",
+                    msg: "User data already exists -> Sign In Instead",
                     error: "Resource already exists"    
                 })
         }
@@ -25,8 +24,7 @@ const signUp = async (req, res) => {
 
         // User Creation
         const result = await pool.query("INSERT INTO user (username, phone_number, password) VALUES (?, ?, ?)", 
-                                        [username, phone_number, hashedPassword]);
-                                        
+                                        [username, phone_number, hashedPassword]);                                        
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Error, could not insert new User.'})
         }
@@ -47,26 +45,24 @@ const signIn = async (req, res) => {
     const { username, password } = req.body;
     try {
         
-        if (username && password) {
-            
-            const [result] = await pool.query("SELECT * FROM user WHERE username = ?", username)
-            
-            const matchPassword = await bcrypt.compare(password, result[0].password);
-
-            if (!matchPassword) {
-                return res.status(401).json({
-                    msg: "Invalid Credentials",
-                    error: "Incorrect Password"
+        // Check Existing User
+        const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username)
+        if (existingUser.length == 0) {
+            return res.status(404).json({
+                    msg: "User not found"    
                 })
-            }
-            
-            console.log(result[0].user_id);
-            const token = jwt.sign({ username: result[0].username, id: result[0].user_id}, SECRET_KEY)
-            res.status(201).json({user: result[0], token: token});
-
-        } else {
-            res.json({msg: "Enter username and password!"});
         }
+        const matchPassword = await bcrypt.compare(password, existingUser[0].password);
+        if (!matchPassword) {
+            return res.status(400).json({
+                msg: "Invalid Credentials",
+                error: "Incorrect Password"
+            })
+        }
+        
+        console.log(existingUser[0].user_id);
+        const token = jwt.sign({ username: existingUser[0].username, id: existingUser[0].user_id}, SECRET_KEY)
+        res.status(201).json({user: existingUser[0], token: token});
 
     } catch (err) {
         console.log(err);

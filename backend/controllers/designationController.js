@@ -40,7 +40,7 @@ const addDesignation = async (req, res) => {
     
     } catch (error) {
         console.error("Error executing POST query: ", error);
-        res.status(500).send("Error retrieving DESIGNATIONS")
+        res.status(500).send("Error submitting DESIGNATION")
     }
 }
 

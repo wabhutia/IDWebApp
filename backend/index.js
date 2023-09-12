@@ -5,22 +5,28 @@ const deptRoutes = require('./routes/departmentRoutes')
 const userRoutes = require('./routes/userRoutes')
 const desgRoutes = require('./routes/designationRoutes')
 const divisionRoutes = require('./routes/divisionRoutes')
+const formRoutes = require('./routes/formRoutes')
 
 const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  console.log("HTTP METHOD :- " + req.method + " , URL :- " + req.url);
+  next();
+})
+
 // Serve static files from the "public" directory
 app.use(express.static('../public'));
-app.use(express.static('../public/main'));
-
+app.use(express.static('../public/landingpage'));
 
 // Routes
 app.use('/user', userRoutes)
 app.use('/departments', deptRoutes);
 app.use('/designations', desgRoutes);
 app.use('/divisions', divisionRoutes);
+app.use('/form', formRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
