@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 // Test only - .env
-const SECRET_KEY = "TESTING-THE-JWTs"
+const SECRET_KEY = "FORM-TESTING-THE-JWTs"
 
 const signUp = async (req, res) => {
 

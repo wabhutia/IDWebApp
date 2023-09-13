@@ -1,18 +1,14 @@
 const express = require('express');
+const auth = require("../middlewares/auth");
+const { getForm, createForm, removeForm} = require('../controllers/formController');
+//, updateForm - Pending 
 
-const {
-    getAllForms,
-    addForm,
-    removeForm
-    //updateForm
-} = require('../controllers/formController');
+const formRouter = express.Router(); 
 
-const router = express.Router();
+formRouter.get("/", auth, getForm);
+formRouter.post("/", auth, createForm);
+formRouter.delete("/:id", auth, removeForm);
+// formRouter.put("/:id", auth, updateForm);
 
-router.route("/")
-    .get(getAllForms)
-    .post(addForm)
-    .delete(removeForm)
-//.patch(updateForm)    
 
-module.exports = router
+module.exports = formRouter
