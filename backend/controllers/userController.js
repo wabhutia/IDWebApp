@@ -60,8 +60,12 @@ const signIn = async (req, res) => {
             })
         }
         
+        // Token Expiry
+        // https://www.geeksforgeeks.org/how-long-jwt-token-valid/ 
+        
         console.log(existingUser[0].user_id);
-        const token = jwt.sign({ username: existingUser[0].username, id: existingUser[0].user_id}, SECRET_KEY)
+        const token = jwt.sign({ username: existingUser[0].username, id: existingUser[0].user_id}, SECRET_KEY,
+                                {expiresIn: '1h'})
         res.status(201).json({user: existingUser[0], token: token});
 
     } catch (err) {

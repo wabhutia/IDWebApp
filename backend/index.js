@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
 // Serve static files from the "public" directory
 app.use(express.static('../public'));
-app.use(express.static('../public/landingpage'));
+// app.use(express.static('../public/landingpage'));
 
 // Routes
 app.use('/user', userRoutes)

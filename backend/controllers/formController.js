@@ -20,7 +20,7 @@ const getForm = async (req, res) => {
 
 const createForm = async (req, res) => {
 
-    const {user_id, employment_type} = req.body;
+    const {employment_type} = req.body;
     const userId = req.userId;
 
     try {
