@@ -13,5 +13,11 @@
 
 ---
 
-## TEST
+## FRONTEND
 
+* EJS - Template engine -> https://ejs.co/
+* Place Public folder into app
+* Update Links -> (Sample provided : pages-login.ejs, pages-register.ejs, pages-error.ejs)
+* STEPS :
+    -   Change html extension to ejs
+    -   place into views directory
