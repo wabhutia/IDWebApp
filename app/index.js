@@ -7,19 +7,28 @@ const desgRoutes = require('./routes/designationRoutes')
 const divisionRoutes = require('./routes/divisionRoutes')
 const formRoutes = require('./routes/formRoutes')
 
-const app = express()
+const app = express();
 
-app.use(express.json())
+app.set("view engine", "ejs");
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   console.log("HTTP METHOD :- " + req.method + " , URL :- " + req.url);
   next();
-})
+});
 
 // Serve static files from the "public" directory
-app.use(express.static('../public'));
+app.use(express.static('./public'));
 // app.use(express.static('../public/landingpage'));
+
+app.get("/", (req, res) => {
+  res.render("pages-login");
+})
+
+app.get("/register", (req, res) => {
+  res.render("pages-register")
+})
 
 // Routes
 app.use('/user', userRoutes)
@@ -35,7 +44,7 @@ app.use((err, req, res, next) => {
   });
 
 app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, '../public/main/pages-error-404.html'));
+    res.status(404).render("pages-error-404");
   });
 
 // Start the server
