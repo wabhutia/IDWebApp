@@ -73,9 +73,27 @@ const removeForm = async (req, res) => {
 //         //Check designations
 // }
 
+// Admin API
+
+const getAllForms = async (req, res) => {
+
+    // All forms associated with the User ID
+    try {
+        
+        const [forms] = await pool.query(`SELECT * FROM form`);
+        res.status(200).json(forms);
+
+    } catch (error) {
+
+        res.status(500).send("Error retrieving FORMS");
+    }
+
+}
+
 module.exports = {
     getForm,
     createForm,
-    removeForm
+    removeForm,
+    getAllForms
     //updateForm
 }
