@@ -7,14 +7,30 @@ const SECRET_KEY = "FORM-TESTING-THE-JWTs";
 
 const signUp = async (req, res) => {
 
-    const { username, phone_number,  password } = req.body;
     try {
-
+        
+        const {
+            username,
+            phone_number,
+            password,
+            name,
+            fathers_name,
+            husbands_name,
+            dob,
+            blood_group,
+            community,
+            gender,
+            religion,
+            ssc_coi_holder_number,
+            permanent_address,
+            email_id
+        } = req.body;
         // Existing User
-        const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username);
+        const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ? and phone_number = ?", [username, phone_number]);
+        // Error
         if (existingUser.length != 0) {
             return res.status(403).json({
-                    msg: "User data already exists -> Sign In Instead",
+                    msg: "User data already exists (Check username and phone number)",
                     error: "Resource already exists"    
                 });
         }
@@ -23,8 +39,32 @@ const signUp = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // New User Registration
-        const [result] = await pool.query("INSERT INTO user (username, phone_number, password) VALUES (?, ?, ?)", 
-                                        [username, phone_number, hashedPassword]);                                        
+        const insertUserQuery = `INSERT INTO user 
+                                    (username, phone_number, password, name, 
+                                    fathers_name, husbands_name, dob, blood_group, 
+                                    community, gender, religion, ssc_coi_holder_number, 
+                                    permanent_address, email_id)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+        
+        // DOB format : YYYY-MM-DD
+        const values = [
+                            username,
+                            phone_number,
+                            hashedPassword,
+                            name,
+                            fathers_name || null, // Handle fathers_name as optional
+                            husbands_name || null, // Handle husbands_name as optional
+                            dob, // YYYY-MM-DD format
+                            blood_group,
+                            community,
+                            gender,
+                            religion,
+                            ssc_coi_holder_number,
+                            permanent_address,
+                            email_id || null 
+                        ]        
+
+        const [result] = await pool.query(insertUserQuery, values);                                        
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Error, could not insert new User.'});
         }
@@ -50,9 +90,9 @@ const signUp = async (req, res) => {
 
 const signIn = async (req, res) => {
  
-    const { username, password } = req.body;
     try {
-        
+        const { username, password } = req.body;
+
         // Check Existing User
         const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username);
         if (existingUser.length == 0) {
@@ -100,7 +140,65 @@ const signIn = async (req, res) => {
     }
 }
 
+
+// USE JS DOCS
+const addEmployeeDetails = async (req, res) => {
+    
+    try {
+        const user_id = req.userId;
+        const {
+            GPF_CPF_num,
+            date_of_first_appointment,
+            designation_at_appointment,
+            current_scale,
+            present_designation,
+            department,
+            date_of_promotion,
+            education_qualification,
+            other_qualifications,
+            special_status_employee,
+            type_of_employment
+        } = req.body;
+    
+        const values = [
+            user_id, 
+            GPF_CPF_num, 
+            date_of_first_appointment, 
+            designation_at_appointment, 
+            current_scale, 
+            present_designation, 
+            department, 
+            date_of_promotion || null, 
+            education_qualification, 
+            other_qualifications || null , 
+            special_status_employee, 
+            type_of_employment
+        ];
+
+        const insertEmployeeQuery = `
+            INSERT INTO employee_details (
+                user_id, GPF_CPF_num, date_of_first_appointment, 
+                designation_at_appointment, current_scale, present_designation, 
+                department, date_of_promotion, education_qualification, 
+                other_qualifications, special_status_employee, type_of_employment
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `;
+
+        const [result] = await pool.query(insertEmployeeQuery, values);                                        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ msg: 'Error, could not insert Employee data.'});
+        }
+
+        res.status(200).json({ success: true, message: 'Employee details added successfully.' });
+
+    }   catch (error) {
+        console.error('Error inserting Employee data: ', error);
+        res.status(500).send('Error inserting Employee data.');
+    }
+}
+
 module.exports = {
     signUp,
-    signIn
+    signIn,
+    addEmployeeDetails
 }
