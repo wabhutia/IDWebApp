@@ -3,3 +3,5 @@ node_modules
 test-public
 public
 .vscode
+app/views/dashboard.ejs
+app/views/pages-login.ejs

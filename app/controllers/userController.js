@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 // Test only - .env
 const SECRET_KEY = "FORM-TESTING-THE-JWTs";
 
+// -User Details-
 const signUp = async (req, res) => {
 
     try {
@@ -95,7 +96,7 @@ const signIn = async (req, res) => {
 
         // Check Existing User
         const [existingUser] = await pool.query("SELECT * FROM user WHERE username = ?", username);
-        if (existingUser.length == 0) {
+        if (existingUser.length === 0) {
             return res.status(404).json({
                     msg: "User not found"    
                 });
@@ -116,8 +117,8 @@ const signIn = async (req, res) => {
                                                 FROM User_Roles UR 
                                                 JOIN Roles R ON UR.role_id = R.role_id 
                                                 WHERE UR.user_id = ?`, existingUser[0].user_id);
-        
-        if (userRoles.length == 0) {
+
+        if (userRoles.length === 0) {
             return res.status(500).json({
                     msg: "Error Retrieving Roles"    
                 });
@@ -132,7 +133,7 @@ const signIn = async (req, res) => {
                                     roles: roles}, SECRET_KEY, 
                                     {expiresIn: '1h'});
 
-        res.status(201).json({user: existingUser[0], token: token});
+        res.status(201).json({user_id: existingUser[0].user_id, token: token});
 
     } catch (err) {
         console.log(err);
@@ -140,12 +141,21 @@ const signIn = async (req, res) => {
     }
 }
 
+// -Employee Details-
 
 // USE JS DOCS
 const addEmployeeDetails = async (req, res) => {
     
     try {
         const user_id = req.userId;
+        
+        // Check if employee details already added 
+        const empCheck = await pool.query(`SELECT * FROM employee_details 
+                                            WHERE user_id = ?`, user_id);
+        if (empCheck.length > 0) {
+            return res.status(403).json({ msg: 'Resource already populated'});
+        }
+
         const {
             GPF_CPF_num,
             date_of_first_appointment,
@@ -196,6 +206,102 @@ const addEmployeeDetails = async (req, res) => {
         res.status(500).send('Error inserting Employee data.');
     }
 }
+
+// PUT -> To replace entire resource (Payload must contain entire resource description)
+// PATCH -> To replace partial fields 
+// const updateEmployeeDetails = async (req, res) => {
+//     try {
+//         const user_id = req.userId;
+
+//         // Check if employee details exist
+//         const empCheck = await pool.query('SELECT * FROM employee_details WHERE user_id = ?', user_id);
+
+//         if (empCheck.length === 0) {
+//             return res.status(404).json({ msg: 'Employee details not found for the given user.' });
+//         }
+
+//         const {
+//             GPF_CPF_num,
+//             date_of_first_appointment,
+//             designation_at_appointment,
+//             current_scale,
+//             present_designation,
+//             department,
+//             date_of_promotion,
+//             education_qualification,
+//             other_qualifications,
+//             special_status_employee,
+//             type_of_employment
+//         } = req.body;
+
+//         const updatedFields = [];
+//         const values = [user_id];
+
+//         if (GPF_CPF_num !== undefined) {
+//             updatedFields.push('GPF_CPF_num = ?');
+//             values.push(GPF_CPF_num);
+//         }
+//         // Add similar blocks for other fields
+//         if (date_of_first_appointment !== undefined) {
+//             updatedFields.push('date_of_first_appointment = ?');
+//             values.push(date_of_first_appointment);
+//         }
+//         if (designation_at_appointment !== undefined) {
+//             updatedFields.push('designation_at_appointment = ?');
+//             values.push(designation_at_appointment);
+//         }
+//         if (current_scale !== undefined) {
+//             updatedFields.push('current_scale = ?');
+//             values.push(current_scale);
+//         }
+//         if (present_designation !== undefined) {
+//             updatedFields.push('present_designation = ?');
+//             values.push(present_designation);
+//         }
+//         if (department !== undefined) {
+//             updatedFields.push('department = ?');
+//             values.push(department);
+//         }
+//         if (date_of_promotion !== undefined) {
+//             updatedFields.push('date_of_promotion = ?');
+//             values.push(date_of_promotion);
+//         }
+//         if (education_qualification !== undefined) {
+//             updatedFields.push('education_qualification = ?');
+//             values.push(education_qualification);
+//         }
+//         if (other_qualifications !== undefined) {
+//             updatedFields.push('other_qualifications = ?');
+//             values.push(other_qualifications);
+//         }
+//         if (special_status_employee !== undefined) {
+//             updatedFields.push('special_status_employee = ?');
+//             values.push(special_status_employee);
+//         }
+//         if (type_of_employment !== undefined) {
+//             updatedFields.push('type_of_employment = ?');
+//             values.push(type_of_employment);
+//         }
+//         //
+//         const updateEmployeeQuery = `
+//             UPDATE employee_details 
+//             SET ${updatedFields.join(', ')}
+//             WHERE user_id = ?;
+//         `;
+
+//         const [result] = await pool.query(updateEmployeeQuery, values);
+
+//         if (result.affectedRows === 0) {
+//             return res.status(404).json({ msg: 'Error, could not update Employee data.' });
+//         }
+
+//         res.status(200).json({ success: true, message: 'Employee details updated successfully.' });
+//     } catch (error) {
+//         console.error('Error updating Employee data: ', error);
+//         res.status(500).send('Error updating Employee data.');
+//     }
+// };
+
 
 module.exports = {
     signUp,
