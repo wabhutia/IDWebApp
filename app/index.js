@@ -10,6 +10,7 @@ const formRoutes = require('./routes/formRoutes')
 
 const app = express();
 
+app.set('views', path.join(__dirname, 'views'));
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(cookieParser());
@@ -22,7 +23,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the "public" directory
-app.use(express.static('./public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Landing
 app.get("/", (req, res) => {
@@ -31,10 +32,6 @@ app.get("/", (req, res) => {
 
 app.get("/register", (req, res) => {
   res.render("pages-register");
-})
-
-app.get("/user-dashboard", (req, res) => {
-  res.render("pages-blank");
 })
 
 // Routes

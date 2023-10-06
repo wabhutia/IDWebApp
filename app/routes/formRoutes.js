@@ -10,7 +10,9 @@ formRouter.get("/", auth, getForm);
 formRouter.post("/", auth, verifyRoles("user"), createForm);
 // formRouter.put("/:id", auth, updateForm);
 formRouter.get("/getformstatus", auth, verifyRoles("user"), getFormStatus);
-formRouter.get("/allForms", auth,verifyRoles("admin"), getAllForms);
-formRouter.delete("/:id", auth, verifyRoles("admin"), removeForm);
+
+// ----X---- ADMIN ROLES ----X----
+formRouter.get("/allForms", auth, verifyRoles("admin"), getAllForms);
+formRouter.delete("/", auth, verifyRoles("admin"), removeForm);
 
 module.exports = formRouter

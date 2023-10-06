@@ -153,8 +153,7 @@ const signIn = async (req, res) => {
             sameSite: 'strict'
         });
         res.status(200).send({msg: "Success"});
-
-        // res.status(200).redirect('/user-dashboard');
+        // res.status(200).redirect('/pages-blank');
 
     } catch (err) {
         console.log(err);
