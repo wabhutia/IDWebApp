@@ -2,26 +2,17 @@ const jwt = require("jsonwebtoken");
 const SECRET_KEY = "FORM-TESTING-THE-JWTs"
 
 const auth = (req, res, next) => {
-    let token = req.headers.authorization;
-
+    const token = req.cookies.access_token;
     if (!token) {
         return res.status(401).json({ error: 'No token provided' });
     }
 
     try {
 
-        if (token) { 
-            token = token.split(" ")[1];
-            let user = jwt.verify(token, SECRET_KEY);
-            // Check token expiration
-    
-            req.userId = user.id;
-            req.userName = user.username;
-            req.roles = user.roles;
-        }
-        else {
-            res.status(401).json({message: "Unauthorized User"});
-        }
+        const data = jwt.verify(token, SECRET_KEY);
+        req.userId = data.id;
+        req.userName = data.username;
+        req.roles = data.roles;
         
         next();
 
@@ -31,7 +22,7 @@ const auth = (req, res, next) => {
             return res.status(401).json({ error: 'Token has expired' });
         }
         else {
-            console.log(error);
+            console.error('JWT Verification Error:', error);
             res.status(401).json({message: "Unauthorized User"});
         }
     }

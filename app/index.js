@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const cookieParser = require('cookie-parser');
 const path = require('path')
 const deptRoutes = require('./routes/departmentRoutes')
 const userRoutes = require('./routes/userRoutes')
@@ -11,8 +12,10 @@ const app = express();
 
 app.set("view engine", "ejs");
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+// Log calls
 app.use((req, res, next) => {
   console.log("HTTP METHOD :- " + req.method + " , URL :- " + req.url);
   next();
@@ -20,14 +23,18 @@ app.use((req, res, next) => {
 
 // Serve static files from the "public" directory
 app.use(express.static('./public'));
-// app.use(express.static('../public/landingpage'));
 
+// Landing
 app.get("/", (req, res) => {
   res.render("pages-login");
 })
 
 app.get("/register", (req, res) => {
-  res.render("pages-register")
+  res.render("pages-register");
+})
+
+app.get("/user-dashboard", (req, res) => {
+  res.render("pages-blank");
 })
 
 // Routes
