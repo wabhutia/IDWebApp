@@ -7,9 +7,15 @@ const { signUp, signIn, logOut, addEmployeeDetails } = require('../controllers/u
 
 const router = express.Router();
 
+router.get("/signup", (req,res) => {
+    res.render("pages-register");
+})
+
 router.post("/signup", signUp);
 router.post("/signin", signIn);
 router.post("/logout", auth, logOut);
+
+// ----X---- ADMIN ROLES ----X----
 router.post("/employeedetails", auth, verifyRoles("user"), addEmployeeDetails);
 
 module.exports = router

@@ -3,7 +3,6 @@ const SECRET_KEY = "FORM-TESTING-THE-JWTs"
 
 const auth = (req, res, next) => {
     const token = req.cookies.access_token;
-    console.log(token);
     if (!token) {
         return res.status(401).json({ error: 'No token provided' });
     }

@@ -1,6 +1,22 @@
 const pool = require('../models/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+// const multer = require('multer');
+// const path = require('path');
+
+// ----X---- Image upload ----X----
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/images');
+//     },
+//     filename: (req, file, cb) => {
+//         const ext = path.extname(file.originalname);
+//         cb(null, file.fieldname + '-' + Date.now() + ext);
+//     }
+// });
+
+// const upload = multer({ storage: storage })  
+
 
 // Test only - .env
 const SECRET_KEY = "FORM-TESTING-THE-JWTs";
@@ -10,7 +26,23 @@ const SECRET_KEY = "FORM-TESTING-THE-JWTs";
 const signUp = async (req, res) => {
 
     try {
-        
+        // // Multer upload middleware for image fields (passportPhoto and signature)
+        // const uploadMiddleware = upload.fields([
+        //     { name: 'passportPhoto', maxCount: 1 },
+        //     { name: 'signature', maxCount: 1 }
+        //   ]);
+      
+        //   // Perform image upload
+        // uploadMiddleware(req, res, async (err) => {
+        //     if (err) {
+        //     console.error(err);
+        //     return res.status(400).json({ error: 'Error uploading images' });
+        //     }
+
+        //     // Images uploaded successfully
+        //     const passportPhotoPath = req.files['passportPhoto'][0].path;
+        //     const signaturePath = req.files['signature'][0].path;
+      
         const {
             username,
             phone_number,

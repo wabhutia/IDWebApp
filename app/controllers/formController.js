@@ -27,14 +27,14 @@ const createForm = async (req, res) => {
         const [empResult] = await pool.query(`SELECT * FROM employee_details
                                             WHERE user_id = ?`, userId);
         if (!empResult || empResult.length === 0) {
-            res.status(404).json({ msg: "Employee Record does not exist"})
+            return res.status(404).json({ msg: "Employee Record does not exist"})
         }
         
         // Check if form already exists
         const [formExists] = await pool.query(`SELECT * FROM form
                                             WHERE user_id = ?`, userId);
         if (formExists.length > 0) {
-            res.status(409).json({ msg: "Form associated with User already exists"})
+            return res.status(409).json({ msg: "Form associated with User already exists"});
         }
 
         // Required information for the ID Card issuance
@@ -79,7 +79,7 @@ const createForm = async (req, res) => {
                                             phone_number) 
                                             VALUES (?,?,?,?,?,?,?)`, values);
         if (result.affectedRows === 0) {
-            res.status(404).json({ msg: 'Error inserting.'})
+            return res.status(404).json({ msg: 'Error inserting.'})
         }
 
           // Get the auto-incremented form_id
@@ -91,13 +91,13 @@ const createForm = async (req, res) => {
             VALUES (?, ?, ?, ?);
         `;
 
-        const valuesStatus = [userId, formId, 'Departmental', 'Pending']; // Assuming a default status of 'Pending'
+        const valuesStatus = [userId, formId, 'Submitted', 'Pending']; // Assuming a default status of 'Pending'
 
         // Insert into the status table
         await pool.query(insertStatusQuery, valuesStatus);
         await pool.query('COMMIT');
 
-        res.status(201).json({msg: "Application submitted"});
+        return res.status(201).json({msg: "Application submitted"});
 
     } catch (error) {
         await pool.query('ROLLBACK');

@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes')
 const desgRoutes = require('./routes/designationRoutes')
 const divisionRoutes = require('./routes/divisionRoutes')
 const formRoutes = require('./routes/formRoutes')
+const superAdminRoutes = require('./routes/superAdminRoutes')
 
 const app = express();
 
@@ -30,9 +31,9 @@ app.get("/", (req, res) => {
   res.render("pages-login");
 })
 
-app.get("/register", (req, res) => {
-  res.render("pages-register");
-})
+// app.get("/register", (req, res) => {
+//   res.render("pages-register");
+// })
 
 // Routes
 app.use('/user', userRoutes)
@@ -40,6 +41,7 @@ app.use('/departments', deptRoutes);
 app.use('/designations', desgRoutes);
 app.use('/divisions', divisionRoutes);
 app.use('/form', formRoutes);
+app.use('/super-admin', superAdminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
