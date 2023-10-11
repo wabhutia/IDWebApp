@@ -1,5 +1,26 @@
 const pool = require('../models/db');
 
+// ----x---- STATUS ----x----
+
+const getFormStatus = async (req, res) => {
+    try {
+
+        const user_id = req.userId;
+
+        const [formStatus] = await pool.query('SELECT * FROM status where user_id = ?', user_id);
+        
+        if (formStatus.affectedRows === 0) {
+            res.status(404).json({ msg: 'No associated forms found with the given user ID'})
+        }
+        res.status(200).json(formStatus);
+
+    } catch (error) {
+        res.status(500).send("Error retrieving status");
+    }
+}
+
+// ----x---- STATUS ----x----
+
 // ----x---- FORMS ----x----
 
 const getForm = async (req, res) => {
@@ -7,8 +28,14 @@ const getForm = async (req, res) => {
     // All forms associated with the User ID
     try {
         const userId = req.userId;
-        const [forms] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, [userId]);
-        res.status(200).json(forms);
+        const [form] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, userId);
+
+        // const formData = rows.map(row => {
+        //     const { _buf, ...formData } = row;  // Exclude the _buf property
+        //     console.log(formData);
+        // });
+        console.log(form);
+        res.status(200).json(form);
 
     } catch (error) {
         
@@ -160,28 +187,7 @@ const removeForm = async (req, res) => {
 }
 // ----x---- ADMIN APIs ----x----
 
-// ----x---- STATUS ----x----
 
-const getFormStatus = async (req, res) => {
-    try {
-
-        const user_id = req.userId;
-        const fetchStatusQuery = "SELECT * FROM status where user_id = ?";
-        
-        const result = await pool.query(fetchStatusQuery, user_id);
-        console.log(result);
-        if (result.affectedRows === 0) {
-            res.status(404).json({ msg: 'No associated forms found with the given user ID'})
-        }
-
-        res.status(200).json(result);
-
-    } catch (error) {
-        res.status(500).send("Error retrieving status");
-    }
-}
-
-// ----x---- STATUS ----x----
 
 module.exports = {
     getForm,
