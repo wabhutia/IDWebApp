@@ -207,61 +207,62 @@ const logOut = async (req, res) => {
 const addEmployeeDetails = async (req, res) => {
     
     try {
-        console.log("SUCCESSFULLY AUTHENTICATED/AUTHORIZED");
-        res.sendStatus(200);
-        // const user_id = req.userId;
-        
-        // // Check if employee details already added 
-        // const empCheck = await pool.query(`SELECT * FROM employee_details 
-        //                                     WHERE user_id = ?`, user_id);
-        // if (empCheck.length > 0) {
-        //     return res.status(403).json({ msg: 'Resource already populated'});
-        // }
+        // console.log("SUCCESSFULLY AUTHENTICATED/AUTHORIZED");
+        // res.sendStatus(200);
+        const user_id = req.userId;
+        // Check if employee details already added 
+        const [empCheck] = await pool.query(`SELECT * FROM employee_details 
+                                            WHERE user_id = ?`, user_id);
+        if (empCheck.length > 0) {
+            return res.status(403).json({ msg: 'Resource already populated'});
+        }
 
-        // const {
-        //     GPF_CPF_num,
-        //     date_of_first_appointment,
-        //     designation_at_appointment,
-        //     current_scale,
-        //     present_designation,
-        //     department,
-        //     date_of_promotion,
-        //     education_qualification,
-        //     other_qualifications,
-        //     special_status_employee,
-        //     type_of_employment
-        // } = req.body;
+        const {
+            GPF_CPF_num,
+            date_of_first_appointment,
+            designation_at_appointment,
+            current_scale,
+            present_designation,
+            department_name,
+            division_name,
+            date_of_promotion,
+            education_qualification,
+            other_qualifications,
+            special_status_employee,
+            type_of_employment
+        } = req.body;
     
-        // const values = [
-        //     user_id, 
-        //     GPF_CPF_num, 
-        //     date_of_first_appointment, 
-        //     designation_at_appointment, 
-        //     current_scale, 
-        //     present_designation, 
-        //     department, 
-        //     date_of_promotion || null, 
-        //     education_qualification, 
-        //     other_qualifications || null , 
-        //     special_status_employee, 
-        //     type_of_employment
-        // ];
+        const values = [
+            user_id, 
+            GPF_CPF_num, 
+            date_of_first_appointment, 
+            designation_at_appointment, 
+            current_scale, 
+            present_designation, 
+            department_name, 
+            division_name || null,
+            date_of_promotion || null, 
+            education_qualification, 
+            other_qualifications || null , 
+            special_status_employee, 
+            type_of_employment
+        ];
 
-        // const insertEmployeeQuery = `
-        //     INSERT INTO employee_details (
-        //         user_id, GPF_CPF_num, date_of_first_appointment, 
-        //         designation_at_appointment, current_scale, present_designation, 
-        //         department, date_of_promotion, education_qualification, 
-        //         other_qualifications, special_status_employee, type_of_employment
-        //     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-        // `;
+        const insertEmployeeQuery = `
+            INSERT INTO employee_details (
+                user_id, GPF_CPF_num, date_of_first_appointment, 
+                designation_at_appointment, current_scale, present_designation, 
+                department_name, division_name, date_of_promotion, education_qualification, 
+                other_qualifications, special_status_employee, type_of_employment
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `;
 
-        // const [result] = await pool.query(insertEmployeeQuery, values);                                        
-        // if (result.affectedRows === 0) {
-        //     return res.status(404).json({ msg: 'Error, could not insert Employee data.'});
-        // }
+        const [result] = await pool.query(insertEmployeeQuery, values);                                        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ msg: 'Error, could not insert Employee data.'});
+        }
 
-        // res.status(200).json({ success: true, message: 'Employee details added successfully.' });
+        res.status(200).json({ success: true, message: 'Employee details added successfully.' });
 
     }   catch (error) {
         console.error('Error inserting Employee data: ', error);

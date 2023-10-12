@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes')
 const desgRoutes = require('./routes/designationRoutes')
 const divisionRoutes = require('./routes/divisionRoutes')
 const formRoutes = require('./routes/formRoutes')
+const formMovementRoutes = require('./routes/formMovementRoutes')
 const superAdminRoutes = require('./routes/superAdminRoutes')
 
 const app = express();
@@ -41,6 +42,7 @@ app.use('/departments', deptRoutes);
 app.use('/designations', desgRoutes);
 app.use('/divisions', divisionRoutes);
 app.use('/form', formRoutes);
+app.use('/form-movement', formMovementRoutes);
 app.use('/super-admin', superAdminRoutes);
 
 // Error handling middleware

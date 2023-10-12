@@ -29,11 +29,6 @@ const getForm = async (req, res) => {
     try {
         const userId = req.userId;
         const [form] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, userId);
-
-        // const formData = rows.map(row => {
-        //     const { _buf, ...formData } = row;  // Exclude the _buf property
-        //     console.log(formData);
-        // });
         console.log(form);
         res.status(200).json(form);
 
