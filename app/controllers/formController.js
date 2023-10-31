@@ -1,45 +1,6 @@
 const pool = require('../models/db');
 
-// ----x---- STATUS ----x----
 
-const getFormStatus = async (req, res) => {
-    try {
-
-        const user_id = req.userId;
-
-        const [formStatus] = await pool.query('SELECT * FROM status where user_id = ?', user_id);
-        
-        if (formStatus.affectedRows === 0) {
-            res.status(404).json({ msg: 'No associated forms found with the given user ID'})
-        }
-        res.status(200).json(formStatus);
-
-    } catch (error) {
-        res.status(500).send("Error retrieving status");
-    }
-}
-
-// ----x---- STATUS ----x----
-
-// ----x---- FORMS ----x----
-
-const getForm = async (req, res) => {
-
-    // All forms associated with the User ID
-    try {
-        const userId = req.userId;
-        const [form] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, userId);
-        console.log(form);
-        res.status(200).json(form);
-
-    } catch (error) {
-        
-        console.error("Internal Error: ", error);
-        res.status(500).send("Error retrieving forms");
-
-    }
-
-}
 
 const createForm = async (req, res) => {
 
@@ -126,6 +87,48 @@ const createForm = async (req, res) => {
         console.error("Error executing POST query: ", error);
         res.status(500).send("Error submitting FORM")
     } 
+}
+
+
+// ----x---- STATUS ----x----
+
+const getFormStatus = async (req, res) => {
+    try {
+
+        const user_id = req.userId;
+
+        const [formStatus] = await pool.query('SELECT * FROM status where user_id = ?', user_id);
+        
+        if (formStatus.affectedRows === 0) {
+            res.status(404).json({ msg: 'No associated forms found with the given user ID'})
+        }
+        res.status(200).json(formStatus);
+
+    } catch (error) {
+        res.status(500).send("Error retrieving status");
+    }
+}
+
+// ----x---- STATUS ----x----
+
+// ----x---- FORMS ----x----
+
+const getForm = async (req, res) => {
+
+    // All forms associated with the User ID
+    try {
+        const userId = req.userId;
+        const [form] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, userId);
+        console.log(form);
+        res.status(200).json(form);
+
+    } catch (error) {
+        
+        console.error("Internal Error: ", error);
+        res.status(500).send("Error retrieving forms");
+
+    }
+
 }
 
 // -- UPDATE -- Check designations

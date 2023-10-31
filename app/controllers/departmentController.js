@@ -3,7 +3,7 @@ const pool = require('../models/db')
 
 const getAllDepartments = async (req, res) => {
     try {
-        const [depts] = await pool.query("SELECT * FROM departments");
+        const [depts] = await pool.query("SELECT * FROM id_departments");
         res.status(200).json(depts);
     }
     catch (error) {
@@ -20,7 +20,7 @@ const addNewDepartment = async (req, res) => {
 
         const result = await pool.query(`
             INSERT INTO 
-            departments (department_name)
+            id_departments (dept_name)
             VALUES (?)
             `, department_name);
         
@@ -46,9 +46,9 @@ const removeDepartment = async (req, res) => {
 
         const result = await pool.query(`
         DELETE FROM 
-        departments
+        id_departments
         WHERE
-        department_id = (?)
+        dept_id = (?)
         `, department_id);
         
         if (result.affectedRows === 0) {

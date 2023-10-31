@@ -13,8 +13,6 @@ const auth = (req, res, next) => {
         req.userId = data.id;
         req.userName = data.username;
         req.roles = data.roles;
-        req.department = data.department;
-        req.division = data.division;
 
         console.log("Auth: " + req.department + req.division);
         

@@ -5,7 +5,7 @@ const pool = require('../models/db');
 const getAllDivisions = async (req, res) => {
     
     try {
-        const [divisions] = await pool.query(`SELECT * FROM divisions`);
+        const [divisions] = await pool.query(`SELECT * FROM id_divisions`);
         console.log(divisions)
         res.status(200).json(divisions)
     
@@ -17,10 +17,11 @@ const getAllDivisions = async (req, res) => {
 
 const addDivision = async (req, res) => {
     
+    // Retrieve Department ID
     const {division_name, department_id} = req.body;
     try {
         // CHECK IF Division EXISTS ALREADY [UNIQUE]
-        const [existingDivision] = await pool.query("SELECT * FROM divisions WHERE division_name = ?", division_name);
+        const [existingDivision] = await pool.query("SELECT * FROM id_divisions WHERE division_name = ?", division_name);
 
         if (existingDivision.length > 0) {
             console.log("Division already exists.")
@@ -28,7 +29,7 @@ const addDivision = async (req, res) => {
         }
 
         const result = await pool.query(`   INSERT INTO
-                                            divisions (division_name, department_id)
+                                            id_divisions (division_name, dept_id)
                                             VALUES (?,?)`, [division_name, department_id]);
 
         if (result.affectedRows === 0) {
@@ -50,7 +51,7 @@ const removeDivision = async (req, res) => {
     try {
         const result = await pool.query(`
         DELETE FROM 
-        divisions
+        id_divisions
         WHERE
         division_id = (?)
         `, division_id);
@@ -74,7 +75,7 @@ const updateDivision = async (req, res) => {
     try {
 
         const result = await pool.query(`
-        UPDATE divisions
+        UPDATE id_divisions
         SET division_name = ?
         WHERE division_id = ?`, [division_name, division_id]);
 

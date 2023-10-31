@@ -5,7 +5,7 @@ const pool = require('../models/db');
 const getAllDesignations = async (req, res) => {
     
     try {
-        const [designations] = await pool.query(`SELECT * FROM designations`);
+        const [designations] = await pool.query(`SELECT * FROM id_designations`);
         res.status(200).json(designations)
     
     } catch (error) {
@@ -20,7 +20,7 @@ const addDesignation = async (req, res) => {
     try {
 
         // CHECK IF DESIGNATION EXISTS ALREADY [UNIQUE]
-        const [existingDesignation] = await pool.query("SELECT * FROM designations WHERE designation_name = ?", designation_name);
+        const [existingDesignation] = await pool.query("SELECT * FROM id_designations WHERE designation = ?", designation_name);
 
         if (existingDesignation.length > 0) {
             console.log("Designation already exists.")
@@ -29,7 +29,7 @@ const addDesignation = async (req, res) => {
 
 
         const result = await pool.query(`   INSERT INTO
-                                            designations (designation_name)
+                                            id_designations (designation)
                                             VALUES (?)`, designation_name);
 
         if (result.affectedRows === 0) {
@@ -51,9 +51,9 @@ const removeDesignation = async (req, res) => {
     try {
         const result = await pool.query(`
         DELETE FROM 
-        designations
+        id_designations
         WHERE
-        designation_id = (?)
+        desig_id = (?)
         `, designation_id);
         
         if (result.affectedRows === 0) {
@@ -75,9 +75,9 @@ const updateDesignation = async (req, res) => {
     try {
 
         const result = await pool.query(`
-        UPDATE designations
-        SET designation_name = ?
-        WHERE designation_id = ?`, [designation_name, designation_id]);
+        UPDATE id_designations
+        SET designation = ?
+        WHERE desig_id = ?`, [designation_name, designation_id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Designation ID not found'})
