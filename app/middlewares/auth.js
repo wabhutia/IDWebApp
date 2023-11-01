@@ -13,9 +13,8 @@ const auth = (req, res, next) => {
         req.userId = data.id;
         req.userName = data.username;
         req.roles = data.roles;
-
-        console.log("Auth: " + req.department + req.division);
-        
+        req.department_id = data.department_id;
+        console.log(req.department_id);        
         next();
 
     } catch(error) {
