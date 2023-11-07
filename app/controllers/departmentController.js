@@ -18,13 +18,11 @@ const addNewDepartment = async (req, res) => {
 
     try {
 
-        const result = await pool.query(`
-            INSERT INTO 
-            id_departments (dept_name)
-            VALUES (?)
-            `, department_name);
+        const result = await pool.query(`   INSERT INTO 
+                                            id_departments (dept_name)
+                                            VALUES (?)
+                                            `, department_name);
         
-        // console.log(result);
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Error, could not add.'})
         }
@@ -43,13 +41,11 @@ const removeDepartment = async (req, res) => {
     const {department_id} = req.body;
 
     try {
-
-        const result = await pool.query(`
-        DELETE FROM 
-        id_departments
-        WHERE
-        dept_id = (?)
-        `, department_id);
+        const result = await pool.query(`   DELETE FROM 
+                                            id_departments
+                                            WHERE
+                                            dept_id = (?)
+                                            `, department_id);
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Department not found.'})
@@ -70,10 +66,9 @@ const updateDepartment = async (req, res) => {
 
     try {
 
-        const result = await pool.query(`
-        UPDATE departments
-        SET department_name = ?
-        WHERE department_id = ?`, [department_name, department_id]);
+        const result = await pool.query(`   UPDATE departments
+                                            SET department_name = ?
+                                            WHERE department_id = ?`, [department_name, department_id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Department ID not found.'})

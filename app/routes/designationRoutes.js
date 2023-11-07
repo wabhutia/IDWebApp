@@ -1,4 +1,6 @@
 const express = require('express');
+const auth = require("../middlewares/auth");
+const verifyRoles = require("../middlewares/verifyRoles");
 
 const {
     getAllDesignations,
@@ -7,12 +9,11 @@ const {
     updateDesignation
 } = require('../controllers/designationController');
 
-const router = express.Router();
+const router = express.Router();   
 
-router.route("/")
-    .get(getAllDesignations)
-    .post(addDesignation)
-    .delete(removeDesignation)
-    .patch(updateDesignation)    
+router.get("/",getAllDesignations);
+router.post("/", auth, verifyRoles("super_admin", "home_admin"), addDesignation);
+router.delete("/", auth, verifyRoles("super_admin"), removeDesignation);
+router.patch("/", auth, verifyRoles("super_admin"), updateDesignation);
 
 module.exports = router

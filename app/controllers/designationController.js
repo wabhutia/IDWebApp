@@ -1,11 +1,13 @@
 const pool = require('../models/db');
+const designationModel = require('../models/designationModel'); // Import the model
 
 // ADMIN ONLY -- RESTRICTED ACCESS // 
 
 const getAllDesignations = async (req, res) => {
     
     try {
-        const [designations] = await pool.query(`SELECT * FROM id_designations`);
+        // const [designations] = await pool.query(`SELECT * FROM id_designations`);
+        const designations = await designationModel.getAllDesignations();
         res.status(200).json(designations)
     
     } catch (error) {
@@ -20,18 +22,14 @@ const addDesignation = async (req, res) => {
     try {
 
         // CHECK IF DESIGNATION EXISTS ALREADY [UNIQUE]
-        const [existingDesignation] = await pool.query("SELECT * FROM id_designations WHERE designation = ?", designation_name);
-
+        const existingDesignation = await designationModel.checkExistingDesignation(designation_name);
+       
         if (existingDesignation.length > 0) {
-            console.log("Designation already exists.")
-            return res.status(404).json({ msg: 'Error, already exists.'})
+            return res.status(404).json({ msg: 'Error, Designation already exists.'})
         }
 
-
-        const result = await pool.query(`   INSERT INTO
-                                            id_designations (designation)
-                                            VALUES (?)`, designation_name);
-
+        const result = await designationModel.addDesignation(designation_name);
+        console.log(result);
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Error, could not add.'})
         }
@@ -39,8 +37,7 @@ const addDesignation = async (req, res) => {
         res.status(200).json(result.des);
     
     } catch (error) {
-        console.error("Error executing POST query: ", error);
-        res.status(500).send("Error submitting DESIGNATION")
+        res.status(500).send("Error adding new Designation")
     }
 }
 
@@ -49,21 +46,14 @@ const removeDesignation = async (req, res) => {
 
     const {designation_id} = req.body;
     try {
-        const result = await pool.query(`
-        DELETE FROM 
-        id_designations
-        WHERE
-        desig_id = (?)
-        `, designation_id);
-        
+        const result = await designationModel.removeDesignation(designation_id);
         if (result.affectedRows === 0) {
-            return res.status(404).json({ msg: 'Designation not found.'})
+            return res.status(404).json({ msg: 'Designation ID not found.'})
         }
 
         res.status(200).json({ msg: "Succesfully deleted the Designation."})
     } catch (error) {
-        console.error("Error deleting the designation: ", error);
-        res.status(500).send("Error deleting the designation.")
+        res.status(500).send("Error deleting designation.")
     }
 }
 
@@ -74,19 +64,14 @@ const updateDesignation = async (req, res) => {
 
     try {
 
-        const result = await pool.query(`
-        UPDATE id_designations
-        SET designation = ?
-        WHERE desig_id = ?`, [designation_name, designation_id]);
-
+        const result = await designationModel.updateDesignation(designation_id, designation_name);
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Designation ID not found'})
         }
 
-        res.status(200).json({ msg: "Succesfully updated the designation name"})
+        res.status(200).json({ msg: "Success"})
 
     } catch (error) {
-        console.error("Error updating: ", error);
         res.status(500).send("Error updating the designation")
     }
 }

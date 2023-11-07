@@ -174,30 +174,33 @@ const signIn = async (req, res) => {
 
         console.log("USER CONTROLLER :- " + roles);
         
-        const [empDetailsQuery] = await pool.query("SELECT department_name FROM employee_details WHERE user_id = ?", existingUser[0].user_id);
-        if (empDetailsQuery.length === 0) {
-            return res.status(404).json({
-                    msg: "Employee Details incomplete"    
-                });
-        }
+        // const [empDetailsQuery] = await pool.query(`    SELECT department_name, division_name 
+        //                                                 FROM employee_details 
+        //                                                 WHERE user_id = ?`, 
+        //                                                 existingUser[0].user_id);
 
-        const department_name = empDetailsQuery[0].department_name;
+        // if (empDetailsQuery.length === 0) {
+        //     return res.status(404).json({
+        //             msg: "Employee Details incomplete"    
+        //         });
+        // }
 
-        console.log("USER CONTROLLER :- " + department_name);
+        // const department_name = empDetailsQuery[0].department_name;
 
-        const [deptIdQuery] = await pool.query("SELECT Dept_ID from id_departments WHERE Dept_Name = ?", [department_name])
-        if (deptIdQuery.length === 0) {
-            return res.status(404).json({
-                    msg: "Dept ID doesn't Exist"    
-                });
-        }
+        // console.log("USER CONTROLLER :- " + department_name);
 
-        const deptId = deptIdQuery[0].Dept_ID;
-        console.log("USER CONTROLLER :- " + deptId);
+        // const [deptIdQuery] = await pool.query("SELECT Dept_ID from id_departments WHERE Dept_Name = ?", [department_name])
+        // if (deptIdQuery.length === 0) {
+        //     return res.status(404).json({
+        //             msg: "Dept ID doesn't Exist"    
+        //         });
+        // }
+
+        // const deptId = deptIdQuery[0].Dept_ID;
+        // console.log("USER CONTROLLER :- " + deptId);
 
         const token = jwt.sign({ username: existingUser[0].username, 
                                     id: existingUser[0].user_id,
-                                    department_id: deptId, 
                                     roles: roles}, SECRET_KEY, 
                                     {expiresIn: '1h'});
 

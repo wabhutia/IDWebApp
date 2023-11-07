@@ -16,8 +16,9 @@ const getAssociatedForms = async (req, res) => {
     try {
 
         // Department/Division of querying admins
-        const [result] = await pool.query(`SELECT department_name, division_name
-                                                            FROM employee_details where user_id = ?`, userId); 
+        const [result] = await pool.query(` SELECT department_name, division_name
+                                            FROM employee_details 
+                                            WHERE user_id = ?`, userId); 
 
         if (result.length === 0) { 
             return res.status(404).json({ msg: 'No associated department/division found for user'});
@@ -30,8 +31,8 @@ const getAssociatedForms = async (req, res) => {
 
             if (divisionName) {
                 const [submittedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                                FROM form f
-                                                                JOIN status s ON f.form_id = s.form_id
+                                                                FROM id_form_details f
+                                                                JOIN id_form_status s ON f.form_id = s.form_id
                                                                 WHERE f.department_name = ? 
                                                                 AND f.division_name = ?
                                                                 AND s.form_status = 'submitted';`, 
@@ -47,8 +48,8 @@ const getAssociatedForms = async (req, res) => {
         } else if (roles.includes('department_verifier')) {
             
             const [submittedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM form f
-                                                    JOIN status s ON f.form_id = s.form_id
+                                                    FROM id_form_details f
+                                                    JOIN id_form_status s ON f.form_id = s.form_id
                                                     WHERE f.department_name = ? 
                                                     AND f.division_name is NULL
                                                     AND s.form_status = 'submitted';`, 
@@ -62,8 +63,8 @@ const getAssociatedForms = async (req, res) => {
         } else if (roles.includes('home_verifier')) {
             
             const [homeForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM form f
-                                                    JOIN status s ON f.form_id = s.form_id
+                                                    FROM id_form_details f
+                                                    JOIN id_form_status s ON f.form_id = s.form_id
                                                     WHERE (s.form_status = 'approved_department' OR s.form_status = 'approved_divisional');`);
                                                     
             if (homeForms.length === 0 ) {
@@ -74,8 +75,8 @@ const getAssociatedForms = async (req, res) => {
         } else if (roles.includes('home_admin')) {
 
             const [homeVerifiedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM form f
-                                                    JOIN status s ON f.form_id = s.form_id
+                                                    FROM id_form_details f
+                                                    JOIN id_form_status s ON f.form_id = s.form_id
                                                     WHERE s.form_status = 'approved_home';`);
                                                     
             if (homeVerifiedForms.length === 0 ) {
@@ -100,8 +101,8 @@ const getFormsForIssuance = async (req, res) => {
     try {
         
         const [pendingForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM form f
-                                                    JOIN status s ON f.form_id = s.form_id
+                                                    FROM id_form_details f
+                                                    JOIN id_form_status s ON f.form_id = s.form_id
                                                     WHERE s.form_status = 'approved_final';`);
                                                     
         if (pendingForms.length === 0 ) {

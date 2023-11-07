@@ -7,14 +7,17 @@ const createForm = async (req, res) => {
     try {
         // Check if employment details exist
         const userId = req.userId;
-        const [empResult] = await pool.query(`SELECT * FROM employee_details
-                                            WHERE user_id = ?`, userId);
+        const [empResult] = await pool.query(`  SELECT * 
+                                                FROM employee_details
+                                                WHERE user_id = ?`
+                                                , userId);
+
         if (!empResult || empResult.length === 0) {
             return res.status(404).json({ msg: "Employee Record does not exist"})
         }
         
         // Check if form already exists
-        const [formExists] = await pool.query(`SELECT * FROM form
+        const [formExists] = await pool.query(`SELECT * FROM id_form_details
                                             WHERE user_id = ?`, userId);
         if (formExists.length > 0) {
             return res.status(409).json({ msg: "Form associated with User already exists"});
@@ -56,7 +59,7 @@ const createForm = async (req, res) => {
         // TRANSACTION QUERY - ROLLBACK IF ERROR, ELSE COMMIT
         await pool.query('START TRANSACTION');
 
-        const [result] = await pool.query(`   INSERT INTO form 
+        const [result] = await pool.query(`   INSERT INTO id_form_details
                                             (user_id, present_designation, department, 
                                             type_of_employment, permanent_address, blood_group,
                                             phone_number) 
@@ -70,7 +73,7 @@ const createForm = async (req, res) => {
         console.log(result);
         // SQL query to insert into the status table
         const insertStatusQuery = `
-            INSERT INTO status (user_id, form_id, form_status, payment_status)
+            INSERT INTO id_form_status (user_id, form_id, form_status, payment_status)
             VALUES (?, ?, ?, ?);
         `;
 
@@ -96,8 +99,10 @@ const getFormStatus = async (req, res) => {
     try {
 
         const user_id = req.userId;
-
-        const [formStatus] = await pool.query('SELECT * FROM status where user_id = ?', user_id);
+        const [formStatus] = await pool.query(` SELECT * 
+                                                FROM id_form_status 
+                                                WHERE user_id = ?`,
+                                                [user_id]);
         
         if (formStatus.affectedRows === 0) {
             res.status(404).json({ msg: 'No associated forms found with the given user ID'})
@@ -118,7 +123,10 @@ const getForm = async (req, res) => {
     // All forms associated with the User ID
     try {
         const userId = req.userId;
-        const [form] = await pool.query(`SELECT * FROM form WHERE user_id = ?`, userId);
+        const [form] = await pool.query(`   SELECT * 
+                                            FROM id_form_details 
+                                            WHERE user_id = ?`,
+                                            [userId]);
         console.log(form);
         res.status(200).json(form);
 
@@ -151,7 +159,7 @@ const getAllForms = async (req, res) => {
     // All forms associated with the User ID
     try {
         
-        const [forms] = await pool.query(`SELECT * FROM form`);
+        const [forms] = await pool.query(`SELECT * FROM id_form_details`);
         res.status(200).json(forms);
 
     } catch (error) {
@@ -165,12 +173,11 @@ const removeForm = async (req, res) => {
     try {
         const {user_id, form_id} = req.body;
         
-        const deleteFormResult = await pool.query(`
-        DELETE FROM 
-        form
-        WHERE
-        (user_id, form_id) = (?, ?)
-        `, [user_id, form_id]);
+        const deleteFormResult = await pool.query(` DELETE FROM 
+                                                    id_form_details
+                                                    WHERE
+                                                    (user_id, form_id) = (?, ?)
+                                                    `, [user_id, form_id]);
         
         if (deleteFormResult.affectedRows === 0) {
             res.status(404).json({ msg: 'Form not found.'})
