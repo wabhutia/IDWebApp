@@ -1,4 +1,6 @@
 const pool = require('../models/db');
+const divisionModel = require('../models/divisionModel');
+const retrievalModel = require('../models/retrievalModel');
 
 // SUPER ADMIN & DEPARTMENTAL ADMINS ONLY // 
 
@@ -6,7 +8,7 @@ const getAllDivisions = async (req, res) => {
     
     try {
 
-        const [divisions] = await pool.query(`SELECT * FROM id_divisions`);
+        const divisions = await divisionModel.getAllDivisions();
         res.status(200).json(divisions);
     
     } catch (error) {
@@ -20,24 +22,23 @@ const getAllDivisions = async (req, res) => {
 const addDivision = async (req, res) => {
     
     // Retrieve Department ID
-    const {division_name, dept_id} = req.body;
-    const adminDepartmentID = req.department_id;
+    const {division_name, dept_ID} = req.body;
     const roles = req.roles;
+    const userID = req.userID;
     
     try {
-        if (dept_id === adminDepartmentID || roles.includes('super_admin')) {
+        // Retrieve department ID from user ID 
+        const userDepartmentID = await retrievalModel.getUserDepartmentID(userID);
+
+        if (userDepartmentID[0].dept_id === dept_ID || roles.includes('super_admin')) {
             
             // CHECK IF Division EXISTS ALREADY [UNIQUE]
-            const [existingDivision] = await pool.query("SELECT * FROM id_divisions WHERE division_name = ?", [division_name]);
+            const existingDivision = await divisionModel.checkExistingDivision(division_name);
             if (existingDivision.length > 0) {
-                console.log("Division already exists.")
-                return res.status(404).json({ msg: 'Error, already exists.'})
+                return res.status(404).json({ msg: 'Division already exists.'})
             }
 
-            const result = await pool.query(`   INSERT INTO
-                                                id_divisions (division_name, dept_id)
-                                                VALUES (?,?)`, [division_name, dept_id]);
-
+            const result = await divisionModel.addNewDivision(division_name);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ msg: 'Error, could not add.'})
             }
@@ -46,7 +47,6 @@ const addDivision = async (req, res) => {
         } else {
             return res.status(401).json({ msg: 'Cannot add division outside users own department'})
         }
-    
     } catch (error) {
     
         console.error("Error executing POST query: ", error);
@@ -59,22 +59,22 @@ const addDivision = async (req, res) => {
 const removeDivision = async (req, res) => {
 
     const {division_id} = req.body;
-    const adminDepartmentID = req.department_id;
+    // const adminDepartmentID = req.department_id;
     const roles = req.roles;
+    const userID = req.userID;
     
     try {
 
-        const [deptIDQuery] = await pool.query("SELECT dept_id from id_divisions WHERE division_id = ?", [division_id]);    
-        if (deptIDQuery === undefined || deptIDQuery.length === 0 ) {
+        const userDepartmentID = await retrievalModel.getUserDepartmentID(userID);
+        const divDeptID = await retrievalModel.getDivDeptID(division_id);
+
+        if (divDeptID === undefined) {
             return res.status(404).json({msg: 'Division not found'})
         }
 
-        const dept_id = deptIDQuery[0].dept_id;
+        if (divDeptID[0].dept_id === userDepartmentID[0].dept_id || roles.includes('super_admin')) {
     
-        if (dept_id === adminDepartmentID || roles.includes('super_admin')) {
-    
-            const result = await pool.query("DELETE FROM id_divisions WHERE division_id = (?)", division_id);
-    
+            const result = await divisionModel.removeDivision(division_id);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ msg: 'Division not found.'});
             }
@@ -86,7 +86,7 @@ const removeDivision = async (req, res) => {
         }
         
     } catch (error) {
-        console.error("Error deleting the Division: ", error);
+        console.log(error);
         res.status(500).send("Error deleting the Division.")
     }
 }
@@ -95,31 +95,31 @@ const removeDivision = async (req, res) => {
 const updateDivision = async (req, res) => {
 
     const {division_id, division_name} = req.body;
-    const adminDepartmentID = req.department_id;
     const roles = req.roles;
+    const userID = req.userID;
 
     try {
 
-        const [deptIDQuery] = await pool.query("SELECT dept_id from id_divisions WHERE division_id = ?", [division_id]);    
-        if (deptIDQuery === undefined || deptIDQuery.length === 0 ) {
+        const userDepartmentID = await retrievalModel.getUserDepartmentID(userID);
+        const divDeptID = await retrievalModel.getDivDeptID(division_id);
+        if (divDeptID === undefined || divDeptID.length === 0 ) {
             return res.status(404).json({msg: 'Division not found'})
         }
 
-        if (dept_id === adminDepartmentID || roles.includes('super_admin')) {
+        if (divDeptID[0].dept_id === userDepartmentID[0].dept_id || roles.includes('super_admin')) {
 
-            const result = await pool.query("UPDATE id_divisions SET division_name = ? WHERE division_id = ?", 
-                                            [division_name, division_id]);
+            const result = await divisionModel.updateDivision(division_id, division_name);
 
             if (result.affectedRows === 0) {
                 return res.status(404).json({ msg: 'Division ID not found'})
             }
 
-            res.status(200).json({ msg: "Succesfully updated the Division name"})
+            res.status(200).json({ msg: "Succesfully updated Division name"})
         } else {
             return res.status(401).json({ msg: "Cannot update division outside users own department"});
         }
     } catch (error) {
-        console.error("Error updating: ", error);
+        console.error(error);
         res.status(500).send("Error updating the division")
     }
 }

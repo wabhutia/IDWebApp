@@ -12,8 +12,8 @@ const {
 const router = express.Router();
 
 router.get("/", getAllDivisions);
-router.post("/addDivision", auth, verifyRoles("department_verifier", "super_admin"), addDivision);
-router.delete("/removeDivision", auth, verifyRoles("department_verifier", "super_admin"), removeDivision);
-router.patch("/updateDivision", auth, verifyRoles("department_verifier", "super_admin"), updateDivision);
+router.post("/", auth, verifyRoles("department_verifier", "super_admin"), addDivision);
+router.delete("/", auth, verifyRoles("department_verifier", "super_admin"), removeDivision);
+router.patch("/", auth, verifyRoles("department_verifier", "super_admin"), updateDivision);
 
 module.exports = router;

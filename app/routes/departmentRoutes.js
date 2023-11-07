@@ -9,7 +9,7 @@ const {
     removeDepartment,
     updateDepartment
 } = require('../controllers/departmentController');
-const { verify } = require('crypto');
+// const { verify } = require('crypto');
 
 const router = express.Router();
 

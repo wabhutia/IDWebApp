@@ -198,7 +198,6 @@ const signIn = async (req, res) => {
 
         // const deptId = deptIdQuery[0].Dept_ID;
         // console.log("USER CONTROLLER :- " + deptId);
-
         const token = jwt.sign({ username: existingUser[0].username, 
                                     id: existingUser[0].user_id,
                                     roles: roles}, SECRET_KEY, 

@@ -1,10 +1,12 @@
 const pool = require('../models/db')
+const departmentModel = require('../models/departmentModel'); // Import the model
 
 
 const getAllDepartments = async (req, res) => {
     try {
-        const [depts] = await pool.query("SELECT * FROM id_departments");
-        res.status(200).json(depts);
+        const allDepartments = await departmentModel.getAllDepartments();
+        
+        res.status(200).json(allDepartments);
     }
     catch (error) {
         console.error("Error executing QUERY: ", error);
@@ -17,12 +19,13 @@ const addNewDepartment = async (req, res) => {
     const { department_name } = req.body;
 
     try {
+        const existingDepartment = await departmentModel.checkExistingDepartment(department_name);
+       
+        if (existingDepartment.length > 0) {
+            return res.status(404).json({ msg: 'Department already exists.'})
+        }
 
-        const result = await pool.query(`   INSERT INTO 
-                                            id_departments (dept_name)
-                                            VALUES (?)
-                                            `, department_name);
-        
+        const result = await departmentModel.addNewDepartment(department_name);
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Error, could not add.'})
         }
@@ -31,7 +34,6 @@ const addNewDepartment = async (req, res) => {
 
     } catch(error) {
 
-        console.error('Error INSERTING Data: ', error);
         res.status(500).send('Error INSERTING Data.')
     }
 }
@@ -41,12 +43,7 @@ const removeDepartment = async (req, res) => {
     const {department_id} = req.body;
 
     try {
-        const result = await pool.query(`   DELETE FROM 
-                                            id_departments
-                                            WHERE
-                                            dept_id = (?)
-                                            `, department_id);
-        
+        const result = await departmentModel.removeDepartment(department_id);
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Department not found.'})
         }
@@ -66,9 +63,7 @@ const updateDepartment = async (req, res) => {
 
     try {
 
-        const result = await pool.query(`   UPDATE departments
-                                            SET department_name = ?
-                                            WHERE department_id = ?`, [department_name, department_id]);
+        const result = await departmentModel.updateDepartment(department_id, department_name);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ msg: 'Department ID not found.'})
