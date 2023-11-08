@@ -28,7 +28,19 @@ const getDivDeptID = async (divisionID) => {
     }
 }
 
+const getAdminDivDept = async (userID) => {
+    try {
+        const [result] = await pool.query(` SELECT department_name, division_name
+                                            FROM employee_details 
+                                            WHERE user_id = ?`, userID);
+         return result;
+    } catch(error) {
+        throw error;
+    }
+}
+
 module.exports = {
     getUserDepartmentID,
-    getDivDeptID
+    getDivDeptID,
+    getAdminDivDept
 };

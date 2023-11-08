@@ -1,5 +1,6 @@
 const pool = require('../models/db');
-
+const retrievalModel = require('../models/retrievalModel');
+const formMovementModel = require('../models/formMovementModel');
 // ==== TO DO ====
 // 1. GET VIA FORM STATUS 
 // 2. APPROVE FORMS
@@ -10,19 +11,18 @@ const pool = require('../models/db');
 const getAssociatedForms = async (req, res) => {
     
     const roles = req.roles;
-    const userId = req.userId;
+    const userID = req.userID;
     
     //Perform role-specific actions
     try {
 
         // Department/Division of querying admins
-        const [result] = await pool.query(` SELECT department_name, division_name
-                                            FROM employee_details 
-                                            WHERE user_id = ?`, userId); 
+        const result = await retrievalModel.getAdminDivDept(userID); 
 
         if (result.length === 0) { 
             return res.status(404).json({ msg: 'No associated department/division found for user'});
         }
+
         const departmentName = result[0].department_name;
 
         // CHECK
@@ -30,59 +30,41 @@ const getAssociatedForms = async (req, res) => {
             const divisionName = result[0].division_name;
 
             if (divisionName) {
-                const [submittedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                                FROM id_form_details f
-                                                                JOIN id_form_status s ON f.form_id = s.form_id
-                                                                WHERE f.department_name = ? 
-                                                                AND f.division_name = ?
-                                                                AND s.form_status = 'submitted';`, 
-                                                                [departmentName, divisionName]);
-
-                                                            
+                const submittedForms = await formMovementModel.getSubmittedFormsDivVerifier(departmentName, divisionName);                                      
                 if (submittedForms.length === 0) {
                     return res.status(404).json({ error: 'No forms available.' });
                 }
                 return res.status(200).send(submittedForms);
+            } else {
+                return res.status(404).json({error: 'Division not added'});
             }
 
         } else if (roles.includes('department_verifier')) {
             
-            const [submittedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM id_form_details f
-                                                    JOIN id_form_status s ON f.form_id = s.form_id
-                                                    WHERE f.department_name = ? 
-                                                    AND f.division_name is NULL
-                                                    AND s.form_status = 'submitted';`, 
-                                                    [departmentName]);
+            const submittedForms = await formMovementModel.getSubmittedFormsDeptVerifier(departmentName);
                                                     
             if (submittedForms.length === 0 ) {
                 return res.status(404).json({ error: 'No forms available.' });
             }
-            return res.status(200).json({ msg: submittedForms});
+            return res.status(200).json({submittedForms});
 
         } else if (roles.includes('home_verifier')) {
             
-            const [homeForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM id_form_details f
-                                                    JOIN id_form_status s ON f.form_id = s.form_id
-                                                    WHERE (s.form_status = 'approved_department' OR s.form_status = 'approved_divisional');`);
-                                                    
-            if (homeForms.length === 0 ) {
+            const approvedForms = await formMovementModel.getSubmittedFormsHomeVerifier();
+
+            if (approvedForms.length === 0 ) {
                 return res.status(404).json({ error: 'No forms available.' });
             }
-            return res.status(200).json({ msg: homeForms});
+            
+            return res.status(200).json(approvedForms);
         
         } else if (roles.includes('home_admin')) {
 
-            const [homeVerifiedForms] = await pool.query(`SELECT f.*, s.form_status
-                                                    FROM id_form_details f
-                                                    JOIN id_form_status s ON f.form_id = s.form_id
-                                                    WHERE s.form_status = 'approved_home';`);
-                                                    
-            if (homeVerifiedForms.length === 0 ) {
+            const homeApprovedForms = await formMovementModel.getApprovedFormsHomeAdmin();
+            if (homeApprovedForms.length === 0 ) {
                 return res.status(404).json({ error: 'No forms available.' });
             }
-            return res.status(200).json({ msg: homeVerifiedForms});
+            return res.status(200).json({homeApprovedForms});
 
         } else {
             res.status(403).json({ error: 'Unauthorized access.' });
@@ -96,7 +78,7 @@ const getAssociatedForms = async (req, res) => {
 
 const getFormsForIssuance = async (req, res) => {
     const roles = req.roles;
-    const userId = req.userId;
+    const userID = req.userID;
 
     try {
         
@@ -118,8 +100,29 @@ const getFormsForIssuance = async (req, res) => {
 
 // ----X---- RETRIEVAL USING FORM STATUS ----X---- 
 
-// ----X---- REJECTION API ----X----
+const approveForm = async (req, res) => {
 
-// ----X---- REJECTION API ----X----
+    const roles = req.roles;
+    const userID = req.userID;
+    const { formID, remarks } = req.body;
 
-module.exports = { getAssociatedForms, getFormsForIssuance };
+    try {
+            
+
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+
+const rejectForm = async (req, res) => {
+
+}
+
+
+module.exports = { 
+    getAssociatedForms, 
+    getFormsForIssuance 
+};
